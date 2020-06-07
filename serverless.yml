@@ -76,6 +76,12 @@ functions:
     package:
       include:
         - SFFunc2/**
+  SFFunc3:
+    name: SFFunc3
+    handler: SFFunc3/index.handler
+    package:
+      include:
+        - SFFunc3/**
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -133,10 +139,57 @@ stepFunctions:
     StateMachine1:
       name: TestStateMachine
       definition:
+        Comment: A Hello World example of the Amazon States Language using Pass states
         StartAt: SFFunc1
         States:
           SFFunc1:
             Type: Task
             Resource:
               Fn::GetAtt: [SFFunc1, Arn]
+            Next: Parallel
+            Retry:
+            - ErrorEquals:
+              - States.ALL
+              IntervalSeconds: 1
+              MaxAttempts: 10
+              BackoffRate: 1.5
+            Catch:
+            - ErrorEquals:
+              - States.ALL
+              Next: Fail
+          Parallel:
+            Type: Parallel
+            Next: Success
+            Catch:
+            - ErrorEquals:
+              - States.ALL
+              Next: Fail
+            Branches:
+            - StartAt: SFFunc2
+              States:
+                SFFunc2:
+                  Type: Task
+                  Resource:
+                    Fn::GetAtt: [SFFunc2, Arn]
+                  End: true
+            - StartAt: SFFunc3
+              States:
+                SFFunc3:
+                  Type: Task
+                  Resource:
+                    Fn::GetAtt: [SFFunc3, Arn]
+                  Retry:
+                  - ErrorEquals:
+                    - States.ALL
+                    IntervalSeconds: 1
+                    MaxAttempts: 10
+                    BackoffRate: 1.5
+                  End: true
+          Success:
+            Type: Pass
+            Result: World
+            End: true
+          Fail:
+            Type: Pass
+            Result: lll
             End: true

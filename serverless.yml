@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: my-special-service
+service: my-serverless-example
 # app and org for use with dashboard.serverless.com
 #app: your-app-name
 #org: your-org-name
@@ -25,11 +25,16 @@ plugins:
 
 provider:
   name: aws
+  stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
-
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+  memorySize: 256
+  timeout: 60
+  versionFunctions: false
+  region: ap-northeast-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action: secretsmanager:GetSecretValue
+      Resource: "*"
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -56,29 +61,29 @@ package:
   individually: true
   exclude:
     - "**"
-  # include:
-#    - include-me.js
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.js
-#    - exclude-me-dir/**
 
 functions:
   SFFunc1:
-    name: SFFunc1
+    name: SFFunc1-${self:provider.stage}
     handler: SFFunc1/index.handler
+    environment:
+      HOGE: FUGA1
     package:
       include:
         - SFFunc1/**
   SFFunc2:
-    name: SFFunc2
+    name: SFFunc2-${self:provider.stage}
     handler: SFFunc2/index.handler
+    environment:
+      HOGE: FUGA2
     package:
       include:
         - SFFunc2/**
   SFFunc3:
-    name: SFFunc3
+    name: SFFunc3-${self:provider.stage}
     handler: SFFunc3/index.handler
+    environment:
+      HOGE: FUGA3
     package:
       include:
         - SFFunc3/**

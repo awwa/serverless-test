@@ -1,5 +1,7 @@
 Deploying staging
 
+### Test
+
 $ cd SFFunc1
 $ npm install
 $ cd ..
